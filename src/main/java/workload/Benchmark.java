@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 public class Benchmark {
     private static final int[] SIZES = {100, 1_000, 10_000, 100_000};
-    private static final int WARMUP_RUNS = 3;
+    private static final int WARMUP_RUNS = 10;
     private static final int MEASURED_RUNS = 5;
     private static final long SEED = 42;
     private static final int VALUE_RANGE = 1_000_000;
@@ -129,6 +129,15 @@ public class Benchmark {
     public static void main(String[] args) throws IOException {
         Path out = Path.of("results", "results.csv");
         Files.createDirectories(out.getParent());
+        for (int rep = 0; rep < 20; rep++) {
+            for (Supplier<IntList> f : FACTORIES) {
+                w1(f, 1_000);
+                w2(f, 1_000);
+                w3(f, 1_000, true);
+                w3(f, 1_000, false);
+            }
+            w4(1_000);
+        }
         try (PrintWriter w = new PrintWriter(Files.newBufferedWriter(out))) {
             w.println("workload,variant,structure,n,time_ms,steps,moves,comparisons");
             for (int n : SIZES) {
